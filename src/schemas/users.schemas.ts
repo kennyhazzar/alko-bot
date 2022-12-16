@@ -9,6 +9,8 @@ export type UserDocument = UserDefinition & Document;
 export class User {
   @Prop({ isRequired: true, unique: true, type: Number })
   id: number;
+  @Prop({ isRequired: true, unique: true, type: Number })
+  chatId: number;
   @Prop({ isRequired: true, unique: false, type: Boolean })
   is_bot: boolean;
   @Prop({ isRequired: true, unique: false, type: String })

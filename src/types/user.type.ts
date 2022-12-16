@@ -9,6 +9,7 @@ export class IUser {
 }
 
 export class UserDefinition extends IUser {
+  chatId: number;
   ban: boolean;
   role: Role;
 }
