@@ -7,8 +7,10 @@ export type HistoryDocument = IHistory & Document;
 
 @Schema()
 export class History {
-  @Prop({ isRequired: true, unique: true, type: Number })
+  @Prop({ isRequired: true, unique: false, type: Number })
   id: number;
+  @Prop({ isRequired: true, unique: false, type: Number })
+  chatId: number;
   @Prop({ isRequired: true, unique: false, type: Number })
   volume: number;
   @Prop({ isRequired: false, unique: false, type: String })

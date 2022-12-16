@@ -1,7 +1,7 @@
 export class IUser {
-  id: number;
-  is_bot: boolean;
-  first_name: string;
+  id?: number;
+  is_bot?: boolean;
+  first_name?: string;
   last_name?: string;
   username?: string;
   language_code?: string;
@@ -9,9 +9,14 @@ export class IUser {
 }
 
 export class UserDefinition extends IUser {
-  chatId: number;
-  ban: boolean;
-  role: Role;
+  chatId?: number;
+  ban?: boolean;
+  role?: Role;
+}
+
+export class UserIdsDefinition implements UserDefinition {
+  id?: number;
+  chatId?: number;
 }
 
 export type Role = 'user' | 'admin';
