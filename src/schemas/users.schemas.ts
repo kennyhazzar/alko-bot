@@ -1,6 +1,6 @@
 import { Schema } from '@nestjs/mongoose';
 import { Prop, SchemaFactory } from '@nestjs/mongoose/dist';
-import { Document } from 'mongoose';
+import { Document, now } from 'mongoose';
 import { Role, UserDefinition } from '../types';
 
 export type UserDocument = UserDefinition & Document;
@@ -27,6 +27,12 @@ export class User {
   ban: boolean;
   @Prop({ isRequired: true, unique: false, type: String, default: 'user' })
   role: Role;
+  @Prop({ isRequired: true, unique: false, type: String })
+  typeOfChat?: string;
+  @Prop({ default: now() })
+  createdAt?: Date;
+  @Prop({ default: now() })
+  updatedAt?: Date;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

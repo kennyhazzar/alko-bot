@@ -10,8 +10,11 @@ export class IUser {
 
 export class UserDefinition extends IUser {
   chatId?: number;
+  typeOfChat?: string;
   ban?: boolean;
   role?: Role;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export class UserIdsDefinition implements UserDefinition {
