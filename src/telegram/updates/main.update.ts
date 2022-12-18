@@ -1,9 +1,13 @@
+import { CACHE_MANAGER, Inject } from '@nestjs/common';
+import { Cache } from 'cache-manager';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Document, Model, Types } from 'mongoose';
 import { Update, Use } from 'nestjs-telegraf';
 import { Context } from 'telegraf';
-import { COMMANDS, SCHEMAS } from '../../constants';
+import { SCHEMAS } from '../../constants';
+import { greetingNewUser } from '../../messages';
 import { StatsDocument, UserDocument } from '../../schemas';
+import { UserDefinition } from '../../types';
 
 @Update()
 export class MainUpdate {
@@ -12,6 +16,7 @@ export class MainUpdate {
   constructor(
     @InjectModel(SCHEMAS.USER) private userModel: Model<UserDocument>,
     @InjectModel(SCHEMAS.LOGS) private statsModel: Model<StatsDocument>,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {
     this.firstStart();
   }
@@ -26,6 +31,11 @@ export class MainUpdate {
 
   @Use()
   async logData(ctx: Context, next: () => Promise<void>) {
+    let user: UserDefinition &
+      Document<any, any, any> & {
+        _id: Types.ObjectId;
+      };
+
     try {
       if (this.isFirstStart) {
         await this.userModel.create({
@@ -46,10 +56,10 @@ export class MainUpdate {
         return;
       }
 
-      const user = await this.userModel.findOne({ id: ctx.from.id });
+      user = await this.userModel.findOne({ id: ctx.from.id });
 
       if (!user) {
-        await this.userModel.create({
+        user = await this.userModel.create({
           id: ctx.from.id,
           chatId: ctx.chat.id,
           first_name: ctx.from?.first_name,
@@ -61,22 +71,13 @@ export class MainUpdate {
         });
 
         await ctx.reply(
-          `Привет, ${
-            ctx.from?.first_name
-          }! Добро пожаловать в наше сообщество алкоголиков!\n\nСписок команд:\n${Object.keys(
-            COMMANDS,
-          )
-            .map(
-              (command, index) =>
-                `${index + 1}. /${command} - ${
-                  Object.values(COMMANDS)[index]
-                }\n`,
-            )
-            .join('')}`,
+          greetingNewUser(ctx.from?.first_name || ctx.from?.username),
         );
 
         return;
       }
+
+      this.cacheManager.set(`user-${user.id}`, user);
 
       next();
     } catch (error) {
